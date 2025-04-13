@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diffie-Hellman</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="main">
+        <div>
+            <p>
+                This is a simple demonstration of the
+                <a href="https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange" target="_blank">
+                Diffie-Hellman key exchange</a>, a cryptographic procedure to generate a public&nbsp;/&nbsp;private
+                key pair as well as a shared secret key for two clients.
+            </p>
+            <p>
+                You can provide a prime number <b>p</b> to be used as the modulo and a generator <b>g</b>.
+                Then, you can either provide the private keys <b>a</b> and <b>b</b> or generate them randomly.
+                <br> Keep in mind that all arithmetic below is done modulo <b>p</b>.
+            </p>
+        </div>
+        <hr>
+        <div class="input-container">
+            <b>p</b> = <input type="number" id="p-input" oninput="updateVariable('p')">
+        </div>
+        <div class="input-container">
+            <b>g</b> = <input type="number" id="g-input" oninput="updateVariable('g')">
+        </div>
+        <br>
+        <div class="input-container">
+            <b>a</b> = <input type="number" id="a-input" oninput="updateVariable('a')">
+            <button onclick="randomPrivA()">Random</button>
+        </div>
+        <div class="input-container">
+            <b>b</b> = <input type="number" id="b-input" oninput="updateVariable('b')">
+            <button onclick="randomPrivB()">Random</button>
+        </div>
+        <hr>
+        <div class="value-output">
+            Chosen values
+            <button onclick="setDefaults()">Use defaults</button>
+            <div><b>p</b> = <span id="p-output"></span></div>
+            <div><b>g</b> = <span id="g-output"></span></div>
+            <div><b>a</b> = <span id="a-output"></span></div>
+            <div><b>b</b> = <span id="b-output"></span></div>
+        </div>
+        <hr>
+        <div class="value-output">
+            Click the buttons below to generate the public keys and the shared secret<br>
+            <button onclick="computePubA()">Compute A</button>
+            <button onclick="computePubB()">Compute B</button>
+            <button onclick="computek()">Compute k</button>
+            <div><b>A</b> = <b>g<sup>a</sup></b> = <span id="A-output"></span></div>
+            <div><b>B</b> = <b>g<sup>b</sup></b> = <span id="B-output"></span></div>
+            <div><b>k</b> = <b>A<sup>b</sup></b> = <b>B<sup>a</sup></b> = <span id="k-output"></span></div>
+            <div id="error">
+                Error: <b>A<sup>b</sup></b> != <b>B<sup>a</sup></b><br>
+                This is most likely because the numbers you used became too large.
+                Either decrease the numbers, or attempt the challenge (see below)
+            </div>
+        </div>
+        <hr>
+        <div>
+            <p>
+                You may have noticed, that errors show up quite quickly, even if the numbers aren't even
+                that large.<br>
+                This is mainly because of limitations in number representation at that scale and because
+                the exponentation becomes way too slow.
+            </p>
+            <p>
+                If you want to have a go at a bit of a challenge, you can download the source code of this
+                webpage <a href="https://github.com/mattiamtzlr/diffie-hellman-demo">here</a>, where you will
+                find instructions to create a faster exponentiation method.<br>
+                With it, you should be able to use primes as large as
+                <a href="https://en.wikipedia.org/wiki/RSA_numbers#RSA-250">RSA-250</a> for <b>p</b>.
+            </p>
+            <p>
+                Good luck! :)
+            </p>
+        </div>
+        <script>
+            /* ignore this */
+            const TODO = 42;
+
+
+            /* =================================== TODO ================================================== *
+             * | Implement here a fast exponentiation algorithm, for example square-and-multiply, for    | *
+             * | which you can use the below frame work.                                                 | *
+             * | You have to replace all the TODO values below with the appropriate calculation.         | *
+             * |                                                                                         | *
+             * | You can also implement something else or play around with the code in other ways :)     | *
+             * |                                                                                         | *
+             * | After having completed your implementation, change the const FAST_IMPL below to true,   | *
+             * | which enables the use of your implementation. Good luck!                                | *
+             * =========================================================================================== */
+
+            /* computes x^k (mod m) i.e. x to the power of k, modulo m */
+            function squareMultiply(x, k, m) {
+                /* intermediate result */
+                let y = TODO;
+
+                /* BigInt is a built-in class to handle large numbers, you don't have to worry about it :) */
+                y = BigInt(y);
+
+                /* binary representation of the exponent k (hint: how could this help you?) */
+                let kBinary = k.toString(2);
+
+                /* loop through every bit of the binary representation of k, from left to right,
+                 * where i is the current bit */
+                for (const i of kBinary) {
+                    y = TODO;
+
+                    if (i == TODO) {
+                        y = TODO;
+                    }
+                }
+                return y;
+            }
+
+            /* TODO: change this once done */
+            const FAST_IMPL = false;
+
+
+            /* rest of the code, feel free to explore! */
+
+            function power(base, exp, mod) {
+                if (FAST_IMPL) return squareMultiply(BigInt(base), BigInt(exp), BigInt(mod));
+                else return Math.pow(base, exp) % mod;
+            }
+
+            var p = 11;
+            var g = 2;
+            var aPrivate = 9;
+            var bPrivate = 5;
+
+            var aPublic;
+            var bPublic;
+            var k
+
+            let pInput = document.getElementById("p-input");
+            let gInput = document.getElementById("g-input");
+            let aInput = document.getElementById("a-input");
+            let bInput = document.getElementById("b-input");
+
+            let pOutput = document.getElementById("p-output");
+            let gOutput = document.getElementById("g-output");
+            let aOutput = document.getElementById("a-output");
+            let bOutput = document.getElementById("b-output");
+
+            let AOutput = document.getElementById("A-output");
+            let BOutput = document.getElementById("B-output");
+            let kOutput = document.getElementById("k-output");
+
+            let error = document.getElementById("error");
+
+            function updateVariable(x) {
+                switch (x) {
+                    case 'p': p = parseInt(pInput.value); break
+                    case 'g': g = parseInt(gInput.value); break
+                    case 'a': aPrivate = parseInt(aInput.value); break
+                    case 'b': bPrivate = parseInt(bInput.value); break
+                }
+                updateValue(x);
+            }
+
+            function updateValue(x) {
+                switch (x) {
+                    case 'p': pOutput.innerText = p; break
+                    case 'g': gOutput.innerText = g; break
+                    case 'a': aOutput.innerText = aPrivate; break
+                    case 'b': bOutput.innerText = bPrivate; break
+                    case 'A': AOutput.innerText = aPublic; break
+                    case 'B': BOutput.innerText = bPublic; break
+                    case 'k': kOutput.innerText = k; break
+                }
+            }
+
+            function randomPrivA() {
+                aPrivate = Math.floor(Math.random() * p);
+                aInput.value = NaN;
+                updateValue('a');
+            }
+
+            function randomPrivB() {
+                bPrivate = Math.floor(Math.random() * p);
+                bInput.value = NaN;
+                updateValue('b');
+            }
+
+            function setDefaults() {
+                p = FAST_IMPL ? 101 : 11;
+                g = FAST_IMPL ? 13 : 2;
+                aPrivate = FAST_IMPL ? 79 : 9;
+                bPrivate = FAST_IMPL ? 68 : 3;
+                pInput.value = NaN;
+                gInput.value = NaN;
+                aInput.value = NaN;
+                bInput.value = NaN;
+                updateValue('p');
+                updateValue('g');
+                updateValue('a');
+                updateValue('b');
+            }
+
+            function computePubA() {
+                aPublic = power(g, aPrivate, p);
+                updateValue('A');
+            }
+
+            function computePubB() {
+                bPublic = power(g, bPrivate, p);
+                updateValue('B');
+            }
+
+            function computek() {
+                let kA = power(aPublic, bPrivate, p);
+                let kB = power(bPublic, aPrivate, p);
+
+                if (kA == kB) {
+                    k = kA;
+                    error.style.display = "none";
+                } else {
+                    console.error("Error: shared secrets do not match");
+                    k = NaN;
+                    error.style.display = "block";
+                }
+                updateValue('k');
+            }
+        </script>
+    </div>
+    <footer>
+         <p xmlns:cc="http://creativecommons.org/ns#" >This work is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">CC BY-SA 4.0<img style="height:15px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:15px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img style="height:15px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1" alt=""></a></p> 
+    </footer>
+</body>
+
+</html>
